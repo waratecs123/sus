@@ -10,6 +10,7 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         {% load static %}
+        {% load custom_filters %}
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     </head>
     <body>
@@ -40,7 +41,7 @@
                 </div>
 
                 <div class="news-content">
-                    {{ news.text_n_ar|linebreaks }}
+                    {{ news.text_n_ar|linebreaks|censor}}
                 </div>
 
             </div>

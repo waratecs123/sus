@@ -10,6 +10,7 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         {% load static %}
+        {% load custom_filters %}
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     </head>
     <body>
@@ -52,7 +53,7 @@
                             {% for post in news %}
                             <tr>
                                 <td>{{ post.heading }}</td>
-                                <td>{{ post.text_n_ar|truncatechars:20 }}</td>
+                                <td>{{ post.text_n_ar|truncatechars:20|censor }}</td>
                                 <td>{{ post.created_at|date:"d.m.Y" }}</td>
                             </tr>
                             {% empty %}

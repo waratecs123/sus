@@ -1,0 +1,22 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+News
+{% endblock title %}
+
+{% block content %}
+<h1>Все новости</h1>
+<div class="products-list mt-4">
+    {% for post in news %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.heading }}</h5>
+                <p class="card-text">{{ post.text_n_ar|truncatechars:50 }}</p>
+                <p class="card-text"><small class="text-muted">{{ post.created_at|date:"d.m.Y H:i" }}</small></p>
+            </div>
+        </div>
+    {% empty %}
+        <p>Нет новостей</p>
+    {% endfor %}
+</div>
+{% endblock content %}

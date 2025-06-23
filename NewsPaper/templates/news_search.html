@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск новостей</title>
+    {% load static %}
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">News Portal</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news_list' %}">Новости</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'article_list' %}">Статьи</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news_create' %}">Создать новость</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center">Поиск новостей</h1>
+        <form method="get" class="mb-4">
+            {{ filterset.form.as_p }}
+            <button type="submit" class="btn btn-primary">Искать</button>
+        </form>
+
+        {% if news_list %}
+            {% for news in news_list %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ news.heading }}</h5>
+                    <p class="card-text">{{ news.text_n_ar|truncatechars:200 }}</p>
+                    <a href="{% url 'news_detail' news.pk %}" class="btn btn-primary">Читать далее</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">Новости не найдены</div>
+        {% endif %}
+    </div>
+</body>
+</html>

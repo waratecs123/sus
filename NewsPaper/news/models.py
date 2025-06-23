@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime, timezone
+from django.urls import reverse
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -43,6 +44,9 @@ class Post(models.Model):
 
     def preview(self):
         return self.text_n_ar[:124] + "..." if len(self.text_n_ar) >= 124 else self.text_n_ar
+
+    def get_absolute_url(self):
+        return reverse('product_detail', args=[str(self.id)])
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

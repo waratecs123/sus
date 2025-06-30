@@ -1,45 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Новости</title>
     {% load static %}
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">News Portal</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" href="{% url 'news_list' %}">Новости</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'article_list' %}">Статьи</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news_create' %}">Создать новость</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <header>
+        <a href="/">News Portal</a>
+        <nav>
+            <a href="{% url 'news_list' %}" class="active">Новости</a>
+            <a href="{% url 'article_list' %}">Статьи</a>
+            <a href="{% url 'news_create' %}">Создать новость</a>
+        </nav>
+    </header>
 
-    <div class="container mt-4">
-        <h1 class="text-center">Последние новости</h1>
+    <main>
+        <h1>Последние новости</h1>
 
         {% for news in news_list %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ news.heading }}</h5>
-                <p class="card-text">{{ news.text_n_ar|truncatechars:200 }}</p>
-                <p class="card-text">
-                    <small class="text-muted">
-                        Опубликовано: {{ news.created_at|date:"d.m.Y H:i" }} |
-                        Автор: {{ news.author.user.username }} |
-                        Рейтинг: {{ news.rating }}
-                    </small>
-                </p>
-                <a href="{% url 'news_detail' news.pk %}" class="btn btn-primary">Читать далее</a>
-            </div>
-        </div>
+        <article>
+            <h2>{{ news.heading }}</h2>
+            <p>{{ news.text_n_ar|truncatechars:200 }}</p>
+            <footer>
+                Опубликовано: {{ news.created_at|date:"d.m.Y H:i" }} |
+                Автор: {{ news.author.user.username }} |
+                Рейтинг: {{ news.rating }}
+            </footer>
+            <a href="{% url 'news_detail' news.pk %}">Читать далее</a>
+        </article>
         {% endfor %}
-    </div>
+    </main>
+
+    {% if user.is_authenticated %}
+        {% if not user.groups.filter.name == 'authors' %}
+            <a href="{% url 'become_author' %}" class="btn btn-primary">Стать автором</a>
+        {% endif %}
+    {% endif %}
 </body>
 </html>

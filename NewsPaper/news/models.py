@@ -1,7 +1,9 @@
-from django.contrib.auth.models import User
 from django.db import models
-from datetime import datetime, timezone
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.urls import reverse
+
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -14,22 +16,29 @@ class Author(models.Model):
         self.rating = post_rating + comment_rating + post_comment_rating
         self.save()
 
+    def __str__(self):
+        return self.user.username
+
+
 class Category(models.Model):
     topic = models.CharField(max_length=255, unique=True)
 
-article = "AR"
-news = "NE"
+    def __str__(self):
+        return self.topic
 
-CHOICE_1 = [
-    (article, "Статья"),
-    (news, "Новость")
-]
 
 class Post(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='news_author')
-    news_choice_article = models.CharField(choices=CHOICE_1, max_length=2, default="NE")
-    heading = models.CharField(max_length=255)
-    text_n_ar = models.TextField()
+    ARTICLE = 'AR'
+    NEWS = 'NE'
+    POST_TYPES = [
+        (ARTICLE, 'Статья'),
+        (NEWS, 'Новость')
+    ]
+
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    post_type = models.CharField(max_length=2, choices=POST_TYPES, default=NEWS)
+    title = models.CharField(max_length=255)
+    text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     categories = models.ManyToManyField(Category, through='PostCategory')
     rating = models.IntegerField(default=0)
@@ -43,19 +52,21 @@ class Post(models.Model):
         self.save()
 
     def preview(self):
-        return self.text_n_ar[:124] + "..." if len(self.text_n_ar) >= 124 else self.text_n_ar
+        return self.text[:124] + '...' if len(self.text) > 124 else self.text
 
     def get_absolute_url(self):
-        return reverse('product_detail', args=[str(self.id)])
+        return reverse('post_detail', kwargs={'pk': self.pk})
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='news_comments')
-    text_com = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
 
@@ -66,3 +77,15 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
+
+@receiver(post_save, sender=User)
+def create_user_author(sender, instance, created, **kwargs):
+    if created:
+        Author.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_author(sender, instance, **kwargs):
+    if hasattr(instance, 'author'):
+        instance.author.save()

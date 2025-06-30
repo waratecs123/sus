@@ -1,35 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Удаление новости</title>
     {% load static %}
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">News Portal</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news_list' %}">Новости</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'article_list' %}">Статьи</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <header>
+        <a href="/">News Portal</a>
+        <nav>
+            <a href="{% url 'news_list' %}">Новости</a>
+            <a href="{% url 'article_list' %}">Статьи</a>
+        </nav>
+    </header>
 
-    <div class="container mt-4">
-        <h1 class="text-center">Удаление новости</h1>
-        <div class="alert alert-danger mt-4">
+    <main>
+        <h1>Удаление новости</h1>
+        <div class="confirmation">
             <p>Вы уверены, что хотите удалить новость "{{ object.heading }}"?</p>
             <form method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Удалить</button>
-                <a href="{% url 'news_detail' object.pk %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit">Удалить</button>
+                <a href="{% url 'news_detail' object.pk %}">Отмена</a>
             </form>
         </div>
-    </div>
+    </main>
 </body>
 </html>

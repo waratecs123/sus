@@ -4,15 +4,14 @@ from .models import Post, Author
 
 
 class NewsFilter(FilterSet):
-    heading = CharFilter(
-        field_name='heading',
+    title = CharFilter(
+        field_name='title',
         lookup_expr='icontains',
         label='Название',
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     author = ModelChoiceFilter(
-        field_name='author',
+        field_name='author__user',
         queryset=Author.objects.all(),
         label='Автор',
         widget=forms.Select(attrs={'class': 'form-control'}))

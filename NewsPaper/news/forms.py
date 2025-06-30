@@ -1,38 +1,40 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Post
+from allauth.account.forms import SignupForm
+from django.contrib.auth.models import Group
+
 
 class NewsForm(forms.ModelForm):
-    description = forms.CharField(
-        min_length=20,
-        widget=forms.Textarea(attrs={'rows': 4}),
-        label='Текст статьи/новости',
-        required=True
-    )
-
     class Meta:
         model = Post
-        fields = ['heading', 'author', 'news_choice_article', 'categories', 'text_n_ar']
+        fields = ['title', 'post_type', 'text', 'categories']
         widgets = {
-            'news_choice_article': forms.RadioSelect,
+            'post_type': forms.RadioSelect,
             'categories': forms.CheckboxSelectMultiple,
+            'text': forms.Textarea(attrs={'rows': 5}),
         }
         labels = {
-            'heading': 'Заголовок',
-            'author': 'Автор',
-            'news_choice_article': 'Тип публикации',
+            'title': 'Заголовок',
+            'post_type': 'Тип публикации',
+            'text': 'Текст',
             'categories': 'Категории',
-            'text_n_ar': 'Основной текст',
         }
 
     def clean(self):
         cleaned_data = super().clean()
-        heading = cleaned_data.get("heading")
-        author = cleaned_data.get("author")
+        title = cleaned_data.get('title')
+        text = cleaned_data.get('text')
 
-        if heading and author and str(author) in heading:
-            raise ValidationError(
-                "Имя автора не должно содержаться в заголовке."
-            )
+        if title and text and title.lower() in text.lower():
+            raise ValidationError("Заголовок не должен содержаться в тексте")
 
         return cleaned_data
+
+
+class CustomSignupForm(SignupForm):
+    def save(self, request):
+        user = super().save(request)
+        common_group = Group.objects.get_or_create(name='common')[0]
+        user.groups.add(common_group)
+        return user

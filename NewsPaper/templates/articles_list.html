@@ -1,69 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список статей</title>
     {% load static %}
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">News Portal</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news_list' %}">Новости</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'article_list' %}">Статьи</a></li>
-                </ul>
-            </div>
-        </div>
+    <nav>
+        <a href="/">News Portal</a>
+        <ul>
+            <li><a href="{% url 'news_list' %}">Новости</a></li>
+            <li><a href="{% url 'article_list' %}">Статьи</a></li>
+        </ul>
     </nav>
 
-    <div class="container mt-4">
-        <h1 class="text-center">Список статей</h1>
-        <a href="{% url 'article_create' %}" class="btn btn-primary mb-3">Создать статью</a>
+    <h1>Список статей</h1>
+    <a href="{% url 'article_create' %}" class="btn">Создать статью</a>
 
-        {% for article in articles %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ article.heading }}</h5>
-                <p class="card-text">{{ article.text_n_ar|truncatechars:200 }}</p>
-                <p class="card-text">
-                    <small class="text-muted">
-                        Опубликовано: {{ article.created_at|date:"d.m.Y H:i" }} |
-                        Автор: {{ article.author.user.username }} |
-                        Рейтинг: {{ article.rating }}
-                    </small>
-                </p>
-                <div class="btn-group">
-                    <a href="{% url 'news_detail' article.pk %}" class="btn btn-sm btn-outline-primary">Читать</a>
-                    <a href="{% url 'article_edit' article.pk %}" class="btn btn-sm btn-outline-secondary">Редактировать</a>
-                    <a href="{% url 'article_delete' article.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
-                </div>
-            </div>
+    {% for article in articles %}
+    <div class="article">
+        <h3>{{ article.heading }}</h3>
+        <p>{{ article.text_n_ar|truncatechars:200 }}</p>
+        <p>
+            Опубликовано: {{ article.created_at|date:"d.m.Y H:i" }} |
+            Автор: {{ article.author.user.username }} |
+            Рейтинг: {{ article.rating }}
+        </p>
+        <div>
+            <a href="{% url 'news_detail' article.pk %}">Читать</a>
+            <a href="{% url 'article_edit' article.pk %}">Редактировать</a>
+            <a href="{% url 'article_delete' article.pk %}">Удалить</a>
         </div>
-        {% empty %}
-        <div class="alert alert-info">Статей пока нет</div>
+    </div>
+    {% empty %}
+    <p>Статей пока нет</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        <a href="?page={{ num }}" {% if num == page_obj.number %}class="active"{% endif %}>{{ num }}</a>
         {% endfor %}
 
-        {% if is_paginated %}
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a></li>
-                {% endif %}
-                {% for num in page_obj.paginator.page_range %}
-                <li class="page-item {% if num == page_obj.number %}active{% endif %}">
-                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                </li>
-                {% endfor %}
-                {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперед</a></li>
-                {% endif %}
-            </ul>
-        </nav>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Вперед</a>
         {% endif %}
     </div>
+    {% endif %}
 </body>
 </html>

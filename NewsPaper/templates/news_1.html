@@ -1,50 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>{{ news.heading }}</title>
-        <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        {% load static %}
-        {% load custom_filters %}
-        <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-    </head>
-    <body>
-        <!-- Responsive navbar-->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container">
-                <a class="navbar-brand" href="/">News Portal</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="/news/">Все новости</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ news.title }}</title>
+    {% load static %}
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <a href="/">News Portal</a>
+        <a href="{% url 'news_list' %}">Все новости</a>
+    </nav>
 
-        <div class="container">
-            <div class="mt-5">
-
-                <h1 class="text-center">{{ news.heading }}</h1>
-
-                <div class="text-muted text-center mb-4">
-                    <small>
-                        Опубликовано: {{ news.created_at|date:"d.m.Y H:i" }} | 
-                        Автор: {{ news.author.user.username }} | 
-                        Рейтинг: {{ news.rating }}
-                    </small>
-                </div>
-
-                <div class="news-content">
-                    {{ news.text_n_ar|linebreaks|censor}}
-                </div>
-
-            </div>
+    <main>
+        <h1>{{ news.title }}</h1>
+        <p class="meta">
+            Опубликовано: {{ news.created_at|date:"d.m.Y H:i" }} |
+            Автор: {{ news.author.user.username }} |
+            Рейтинг: {{ news.rating }}
+        </p>
+        <div class="content">
+            {{ news.text|linebreaks }}
         </div>
-    </body>
+    </main>
+
+    {% if user.is_authenticated and not user.groups.filter.name == 'authors' %}
+        <a href="{% url 'become_author' %}" class="btn btn-primary">Стать автором</a>
+    {% endif %}
+</body>
 </html>

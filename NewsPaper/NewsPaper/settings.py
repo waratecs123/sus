@@ -1,6 +1,7 @@
 # settings.py
 from pathlib import Path
 import os
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -113,6 +114,12 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_TIMEZONE = 'Europe/Moscow'
 CELERY_BEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {
+    'weekly-newsletter': {
+        'task': 'news.tasks.send_weekly_newsletter',
+        'schedule': crontab(hour=8, minute=0, day_of_week=1),  # Каждый понедельник в 8:00
+    },
+}
 
 # Настройки Yandex провайдера
 SOCIALACCOUNT_PROVIDERS = {

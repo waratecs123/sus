@@ -38,3 +38,6 @@ class CustomSignupForm(SignupForm):
         common_group = Group.objects.get_or_create(name='common')[0]
         user.groups.add(common_group)
         return user
+
+class SubscribeForm(forms.Form):
+    category_id = forms.IntegerField(widget=forms.HiddenInput())

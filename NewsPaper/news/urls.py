@@ -4,6 +4,8 @@ from .views import (
     ArticleList, ArticleCreate, ArticleUpdate, ArticleDelete, become_author
 )
 
+from . import views
+
 urlpatterns = [
     # Главная страница (новости)
     path('', NewsList.as_view(), name='news_list'),
@@ -21,6 +23,8 @@ urlpatterns = [
     path('articles/create/', ArticleCreate.as_view(), name='article_create'),
     path('articles/<int:pk>/edit/', ArticleUpdate.as_view(), name='article_edit'),
     path('articles/<int:pk>/delete/', ArticleDelete.as_view(), name='article_delete'),
+
+    path('category/<int:category_id>/', views.category_posts, name='category_posts'),
 
     # Стать автором
     path('become-author/', become_author, name='become_author'),

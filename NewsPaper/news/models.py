@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .tasks import send_new_post_notification
 
 
 class Author(models.Model):
@@ -22,6 +25,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     topic = models.CharField(max_length=255, unique=True)
+    subscribers = models.ManyToManyField(User, related_name='subscriptions', blank=True)
 
     def __str__(self):
         return self.topic
@@ -58,6 +62,7 @@ class Post(models.Model):
         return reverse('post_detail', kwargs={'pk': self.pk})
 
 
+
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -89,3 +94,9 @@ def create_user_author(sender, instance, created, **kwargs):
 def save_user_author(sender, instance, **kwargs):
     if hasattr(instance, 'author'):
         instance.author.save()
+
+
+@receiver(post_save, sender=Post)
+def notify_subscribers(sender, instance, created, **kwargs):
+    if created and instance.post_type == Post.NEWS:
+        send_new_post_notification.delay(instance.id)

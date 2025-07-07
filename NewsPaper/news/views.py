@@ -9,6 +9,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from .models import Category
+from .forms import SubscribeForm
+from django.shortcuts import render, get_object_or_404, redirect
 
 
 class NewsList(ListView):
@@ -148,3 +151,32 @@ def become_author(request):
     request.user.groups.add(authors_group)
     messages.success(request, 'Поздравляем! Теперь вы автор!')
     return redirect('news_list')
+
+def category_posts(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    posts = Post.objects.filter(category=category).order_by('-created_at')
+    is_subscribed = request.user in category.subscribers.all()
+
+    if request.method == 'POST':
+        form = SubscribeForm(request.POST)
+        if form.is_valid():
+            category_id = form.cleaned_data['category_id']
+            category = Category.objects.get(pk=category_id)
+
+            if request.user in category.subscribers.all():
+                category.subscribers.remove(request.user)
+            else:
+                category.subscribers.add(request.user)
+
+            return redirect('category_posts', category_id=category_id)  # Перенаправление на ту же страницу
+
+    else:
+        form = SubscribeForm(initial={'category_id': category_id})
+
+    context = {
+        'category': category,
+        'posts': posts,
+        'is_subscribed': is_subscribed,
+        'form': form,
+    }
+    return render(request, 'category_posts.html', context)
